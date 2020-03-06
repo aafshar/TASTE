@@ -20,3 +20,8 @@ Health Records." ACM CHIL 2020.
  Before running the codes you need to import the following packages:
  * Tensor Toolbox Version 2.6 which can be downloaded from: https://www.sandia.gov/~tgkolda/TensorToolbox/index-2.6.html
  * Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares (https://www.cc.gatech.edu/~hpark/nmfsoftware.php).
+ 
+ To start with you need to run: "main.m" file. 
+ 
+ 
+ If you find any bug  in the codes or face any issue please feel free to contact me at  aafshar8@gatech.edu
