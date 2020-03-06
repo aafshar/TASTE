@@ -9,3 +9,14 @@ TASTE applied on dynamically-evolving structured EHR data and static patient inf
 
 ## Relevant Publication
 TASTE implements the code in the following paper:
+```
+Afshar, Ardavan, Ioakeim Perros, Haesun Park, Christopher deFilippi, Xiaowei Yan, Walter Stewart,
+Joyce Ho, and Jimeng Sun. "TASTE: Temporal and Static Tensor Factorization for Phenotyping Electronic
+Health Records." ACM CHIL 2020.
+```
+
+### Code description
+
+ Before running the codes you need to import the following packages:
+ * Tensor Toolbox Version 2.6 which can be downloaded from: https://www.sandia.gov/~tgkolda/TensorToolbox/index-2.6.html
+ * Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares (https://www.cc.gatech.edu/~hpark/nmfsoftware.php).
