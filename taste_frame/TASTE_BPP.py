@@ -66,6 +66,44 @@ def TASTE_BPP( X,A,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraint
         #update F
         F = np.transpose(nnlsm_blockpivot(lambda_ * np.transpose(W) @ W, lambda_ * np.transpose(W) @ A, 1, np.transpose(F)))
 
+        U_S_T_U_S = 0
+        U_S_T_X = 0
+        #update V
+        if PARFOR_FLAG:
+            for k in range(K):
+                U_S = U[k] * W[k, :]# element wise multiplication
+                U_S_T_U_S = U_S_T_U_S + np.transpose(U_S) @ U_S
+                U_S_T_X += np.transpose(U_S) @ X[k]
+        else
+            for k in range(K):
+                U_S = U[k] * W[k, :]# element wise multiplication
+                U_S_T_U_S = U_S_T_U_S + np.transpose(U_S) @ U_S
+                U_S_T_X += np.transpose(U_S) @ X[k]
+        V=np.transpose(nnlsm_blockpivot( U_S_T_U_S, U_S_T_X, 1, np.transpose(V) ))
+
+        if PARFOR_FLAG:
+            for k in range(K):
+                V_S = V * W[k, :] # element wise multiplication
+                V_S_T_V_S = np.transpose(V_S) @ V_S + mu * np.eye(R)
+                U_S_T_X = np.transpose(V_S) @ np.transpose(X[k]) + (mu * np.transpose(H) @ np.transpose(Q[k]))
+                U[k] = np.transpose(nnlsm_blockpivot( V_S_T_V_S, U_S_T_X, 1, np.transpose(U[k]) ))
+
+        else
+            for k in range(K):
+                V_S = V * W[k, :] # element wise multiplication
+                V_S_T_V_S = np.transpose(V_S) @ V_S + mu * np.eye(R)
+                U_S_T_X = np.transpose(V_S) @ np.transpose(X[k]) + (mu * np.transpose(H) @ np.transpose(Q[k]))
+                U[k] = np.transpose(nnlsm_blockpivot( V_S_T_V_S, U_S_T_X, 1, np.transpose(U[k]) ))
+
+
+        tEnd = time.time()
+        TOTAL_running_TIME=TOTAL_running_TIME + (tEnd - tStart)
+        prev_RMSE = RMSE
+        FIT_T, FIT_M, RMSE = calculate_RMSE(X,A,U,W,V,F,normX,normA,Size_input,K,PARFOR_FLAG)
+
+
+        RMSE_TIME.append((TOTAL_running_TIME, RMSE))
+
     return TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME,U,Q,H,V,W,F
 
 
