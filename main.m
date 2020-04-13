@@ -5,39 +5,60 @@ close all;
 addpath(genpath('./TASTE_Framework'));
 addpath(genpath('./nonnegfac-matlab-master')); % this package is from https://www.cc.gatech.edu/~hpark/nmfsoftware.php
 
-
-
-%%create a synthetic data set. 
-K=100;
-J=40;%number of dynamic features
-P=30;%number of static features
-I_k=50;
-R=4;  %number of factors or components
-H=rand(R,R);
-W=rand(K,R);
-F=rand(P,R);
-V=rand(J,R);
-Q=cell(K,1);
-U=cell(K,1);
-
-for k=1:K
-    col_Q_k=randi(R,I_k,1);
-    Temp_Q=repmat(col_Q_k,1,R);
-    for r=1:R
-        col_Q=Temp_Q(:,r)==r;
-        Q{k}(:,r)=col_Q;
-    end  
-    Q{k}=normc(Q{k});
-%Q{k}=orth(rand(I_k,R)); 
-
-    U{k}=Q{k}*H;
+A = readtable('static_feature.csv');
+XK = readtable('design_matrix_2.csv');
+[K, P] = size(A);
+X_height = height(XK);
+R = max(XK{:, 3});
+X = cell(K, 1);
+j = 1;
+for k = 1:K
+    start = j;
+    while (j <= X_height) && strcmp(A{k, 1}{1}, XK{j, 1}{1})
+        j = j + 1;
+    end
+    X{k} = XK{start : (j-1), 2:(end-1)};
 end
-
-A=W*F';
-X = cell(K,1);
-for i=1: K
-        X{i}=(U{i}*diag(W(i,:)))*V';
+A = A(:, 2:(end-1));
+for i = 1:K
+    A{i, 2} = 2010-(A{i, 2} - mod(A{i, 2}, 10000))/10000;
 end
+A = A{:, :};
+for k = 1:K
+    hei = size(X{k});
+    X{k} = sparse(X{k}(:, 1), X{k}(:, 2), ones(hei(1), 1), X{k}(end, 1), R);
+end
+R = 20;
+%%create a synthetic data set.
+% K=100;
+% J=40;%number of dynamic features
+% P=30;%number of static features
+% I_k=50;
+% R=4;  %number of factors or components
+% H=rand(R,R);
+% W=rand(K,R);
+% F=rand(P,R);
+% V=rand(J,R);
+% Q=cell(K,1);
+% U=cell(K,1);
+
+% for k=1:K
+%     col_Q_k=randi(R,I_k,1);
+%     Temp_Q=repmat(col_Q_k,1,R);
+%     for r=1:R
+%         col_Q=Temp_Q(:,r)==r;
+%         Q{k}(:,r)=col_Q;
+%     end
+%     Q{k}=normc(Q{k});
+
+%     U{k}=Q{k}*H;
+% end
+
+% A=W*F';
+% X = cell(K,1);
+% for i=1: K
+%         X{i}=(U{i}*diag(W(i,:)))*V';
+% end
 
 
 
@@ -46,7 +67,7 @@ data_name="Synethetic_data";
 
 
 
-lambda=1; 
+lambda=1;
 mu=1;
 conv_tol=1e-5; %converegance tolerance
 PARFOR_FLAG=0; %parallel computing

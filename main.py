@@ -1,6 +1,8 @@
 from taste_frame import *
 from nonnegfac import *
 import numpy as np
+import numpy.matlib
+from matplotlib import pyplot as plt
 # this package is from https://www.cc.gatech.edu/~hpark/nmfsoftware.php
 
 
@@ -19,14 +21,14 @@ Q=[]#len(Q) = K
 U=[]#len(U) = K
 
 for k in range(K):
-	Q.append(np.zeros([I_k, R]))
+    Q.append(np.zeros([I_k, R]))
     col_Q_k = np.random.randint(5, size=(I_k, 1)) + 1
     Temp_Q = np.matlib.repmat(col_Q_k, 1, R)
     for r in range(R):
         Q[k][:, r] = Temp_Q[:,r] == r
     Q[k] = Q[k] / np.sqrt(np.sum(np.square(Q[k]), axis=0))
 
-    U[k] = Q[k] @ H
+    U.append(Q[k] @ H)
 
 A = W @ np.transpose(F)
 X = [] #len(X) = K
@@ -49,7 +51,7 @@ itr = 5
 seed = 1
 
 TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME,U,Q,H,V,W,F = TASTE_BPP(X,A,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_)
-plot(RMSE_TIME(:,1),RMSE_TIME(:,2))
+plot(RMSE_TIME[:,0],RMSE_TIME[:,1])
 xlabel("Time")
 ylabel("RMSE")
 
