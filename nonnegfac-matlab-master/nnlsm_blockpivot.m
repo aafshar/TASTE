@@ -53,6 +53,7 @@ function [ X,Y,iter,success ] = nnlsm_blockpivot( A, B, isInputProd, init )
         [ X,iter ] = solveNormalEqComb(AtA,AtB,PassiveSet);
         Y = AtA * X - AtB;
     end
+    
     % parameters
     pbar = 3;
     P = zeros(1,k);, P(:) = pbar;
@@ -60,6 +61,7 @@ function [ X,Y,iter,success ] = nnlsm_blockpivot( A, B, isInputProd, init )
     iter = 0;
 
     NonOptSet = (Y < 0) & ~PassiveSet;
+    
     InfeaSet = (X < 0) & PassiveSet;
     NotGood = sum(NonOptSet)+sum(InfeaSet);
     NotOptCols = NotGood > 0;

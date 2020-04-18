@@ -34,7 +34,9 @@ else
     save("prep.mat")
 end
 
-R = 20;
+%A = ones(12494, 1);
+
+R = 5;
 %%create a synthetic data set.
 % K=100;
 % J=40;%number of dynamic features
@@ -89,3 +91,4 @@ plot(RMSE_TIME(:,1),RMSE_TIME(:,2));
 xlabel("Time");
 ylabel("RMSE");
 
+%[FIT_T FIT_M,RMSE]=calculate_RMSE(X,A,U,W,V,F,normX,normA,Size_input,K,PARFOR_FLAG);
