@@ -12,11 +12,9 @@ if "." not in sys.path:
 
 import taste_frame
 import nonnegfac
-import PARACoupl2_BPP
 
 # importlib.reload(taste_frame)
 # importlib.reload(nonnegfac)
-# importlib.reload(PARACoupl2_BPP)
 
 def A_join_X(A, X_df):
     X_height = X_df.shape[0]
@@ -72,7 +70,7 @@ def main(R, static, dynamic, use_saved_np):
     my_plot(RMSE_TIME_case, str(R) + ".png")
 
     normX, normA, Size_input = taste_frame.claculate_norm(X_ctrl,A_ctrl,A_ctrl.shape[0],PARFOR_FLAG) #Calculate the norm of the input X_ctrl
-    TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME_ctrl,U_ctrl,Q_ctrl,H_ctrl,V_ctrl,W_ctrl,F_ctrl = PARACoupl2_BPP.PARACoupl2_BPP( X_ctrl,A_ctrl,V_case,F_case,H_case,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_ )
+    TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME_ctrl,U_ctrl,Q_ctrl,H_ctrl,V_ctrl,W_ctrl,F_ctrl = taste_frame.PARACoupl2_BPP( X_ctrl,A_ctrl,V_case,F_case,H_case,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_ )
     my_plot(RMSE_TIME_ctrl, str(R) + "_projection.png")
 
     return RMSE_TIME_case,U_case,Q_case,H_case,V_case,W_case,F_case,RMSE_TIME_ctrl,U_ctrl,Q_ctrl,H_ctrl,V_ctrl,W_ctrl,F_ctrl
