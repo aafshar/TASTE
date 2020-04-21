@@ -1,53 +1,81 @@
-from taste_frame import *
-from nonnegfac import *
 import numpy as np
 import numpy.matlib
 from matplotlib import pyplot as plt
+import pandas as pd
+from scipy.sparse import csr_matrix
 # this package is from https://www.cc.gatech.edu/~hpark/nmfsoftware.php
+import importlib
+import sys
 
+if "." not in sys.path:
+    sys.path.append(".")
 
+import taste_frame
+import nonnegfac
+import PARACoupl2_BPP
 
-A = readtable('static_feature.csv')
-XK = readtable('design_matrix_3.csv')
-[K, P] = size(A)
-X_height = height(XK)
-R = max(XK{:, 3})
-X = cell(K, 1)
-j = 1
-for k = 1:K
-    start = j
-    while (j <= X_height) && strcmp(A{k, 1}{1}, XK{j, 1}{1})
-        j = j + 1
-    end
-    X{k} = XK{start : (j-1), 2:(end-1)}
-end
-A = A(:, 2:(end-1))
-for i = 1:K
-    A{i, 2} = 2010-(A{i, 2} - mod(A{i, 2}, 10000))/10000
-end
-A = A{:, :}
-for k = 1:K
-    hei = size(X{k})
-    X{k} = sparse(X{k}(:, 1), X{k}(:, 2), ones(hei(1), 1), X{k}(end, 1), R)
-end
+# importlib.reload(taste_frame)
+# importlib.reload(nonnegfac)
+# importlib.reload(PARACoupl2_BPP)
 
-R = 5
+def A_join_X(A, X_df):
+    X_height = X_df.shape[0]
+    K = A.shape[0]
+    X = []
+    j = 0
+    for i in range(K):
+        while j < X_height and A.iloc[i, 0] != X_df.iloc[j, 0]:
+            j += 1
+        start = j
+        while j < X_height and A.iloc[i, 0] == X_df.iloc[j, 0]:
+            j += 1
+        temp = X_df.iloc[start : j, 1:]
+        X.append(csr_matrix(([1 for _ in range(temp.shape[0])], ((temp["r"]-1), (temp["code"]-1))), shape = (temp["r"].iloc[-1], max(X_df["code"]))))
+    return X
 
+def my_plot(RMSE_TIME, name):
+    fig = plt.figure()
+    plt.plot([tup[0] for tup in RMSE_TIME], [tup[1] for tup in RMSE_TIME])
+    plt.xlabel("Time")
+    plt.ylabel("RMSE")
+    plt.savefig(name)
 
-data_name = "Synethetic_data"
+def main(R, static, dynamic, use_saved_np):
+    if use_saved_np:
+        with np.load('AX.npz', allow_pickle = True) as data:
+            X_case = data['X_case']
+            X_ctrl = data['X_ctrl']
+            A_case = data['A_case']
+            A_ctrl = data['A_ctrl']
+    else:
+        A_df = pd.read_csv(static, header = 0)
+        A_case = A_df[A_df["is_case"] == 1]
+        A_ctrl = A_df[A_df["is_case"] == 0]
 
-lambda_ = 1
-mu = 1
-conv_tol = 1e-5 #converegance tolerance
-PARFOR_FLAG = 0 #parallel computing
-normX, normA, Size_input = claculate_norm(X,A,K,PARFOR_FLAG) #Calculate the norm of the input X
-Constraints = ['nonnegative', 'nonnegative','nonnegative','nonnegative']
+        X_df = pd.read_csv(dynamic, header = 0)
 
-itr = 5
-seed = 1
+        X_case = A_join_X(A_case, X_df)
+        A_case = A_case.iloc[:, 1:-1].to_numpy() # A_case = np.ones(12494, 1)
+        X_ctrl = A_join_X(A_ctrl, X_df)
+        A_ctrl = A_ctrl.iloc[:, 1:-1].to_numpy() # A_ctrl = np.ones(12494, 1)
+        np.savez_compressed("AX.npz", X_case = X_case, A_case = A_case, X_ctrl = X_ctrl, A_ctrl = A_ctrl)
 
-TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME,U,Q,H,V,W,F = TASTE_BPP(X,A,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_)
-plot(RMSE_TIME[:,0],RMSE_TIME[:,1])
-xlabel("Time")
-ylabel("RMSE")
+    lambda_ = 1
+    mu = 1
+    conv_tol = 1e-4 #converegance tolerance
+    PARFOR_FLAG = 0 #parallel computing
+    Constraints = ['nonnegative', 'nonnegative','nonnegative','nonnegative']
+    seed = 1
 
+    normX, normA, Size_input = taste_frame.claculate_norm(X_case,A_case,A_case.shape[0],PARFOR_FLAG) #Calculate the norm of the input X_case
+    TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME_case,U_case,Q_case,H_case,V_case,W_case,F_case = taste_frame.TASTE_BPP(X_case,A_case,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_)
+    my_plot(RMSE_TIME_case, str(R) + ".png")
+
+    normX, normA, Size_input = taste_frame.claculate_norm(X_ctrl,A_ctrl,A_ctrl.shape[0],PARFOR_FLAG) #Calculate the norm of the input X_ctrl
+    TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME_ctrl,U_ctrl,Q_ctrl,H_ctrl,V_ctrl,W_ctrl,F_ctrl = PARACoupl2_BPP.PARACoupl2_BPP( X_ctrl,A_ctrl,V_case,F_case,H_case,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_ )
+    my_plot(RMSE_TIME_ctrl, str(R) + "_projection.png")
+
+    return RMSE_TIME_case,U_case,Q_case,H_case,V_case,W_case,F_case,RMSE_TIME_ctrl,U_ctrl,Q_ctrl,H_ctrl,V_ctrl,W_ctrl,F_ctrl
+
+if __name__ == '__main__':
+    main(R = 5, static = "static.csv", dynamic = "dynamic.csv", use_saved_np = True)

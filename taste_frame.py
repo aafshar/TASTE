@@ -56,8 +56,6 @@ def calculate_RMSE(X, A, U, W, V, F, normX, normA, Size_input, K, PARFOR_FLAG):
 
 
 def TASTE_BPP(X, A, R, conv_tol, seed, PARFOR_FLAG, normX, normA, Size_input, Constraints, mu, lambda_):
-    # Implementation of PARACouple2
-    #
 
     tStart = time.time()
     RMSE_TIME = []
