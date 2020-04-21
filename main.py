@@ -76,4 +76,4 @@ def main(R, static, dynamic, use_saved_np):
     return RMSE_TIME_case,U_case,Q_case,H_case,V_case,W_case,F_case,RMSE_TIME_ctrl,U_ctrl,Q_ctrl,H_ctrl,V_ctrl,W_ctrl,F_ctrl
 
 if __name__ == '__main__':
-    main(R = 5, static = "static.csv", dynamic = "dynamic.csv", use_saved_np = True)
+    main(R = 5, static = "data/static.csv", dynamic = "data/dynamic.csv", use_saved_np = False)
