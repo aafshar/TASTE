@@ -1,7 +1,10 @@
 # TASTE
-TASTE combines the PARAFAC2 model with non-negative matrix factorization to model a temporal and a static tensor. It performs two import tasks in healthcare: 1- computational phenotyping 2- Predictive modeling by analyzing electronic health records (EHRs). 
 
+TASTE and [Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares](https://www.cc.gatech.edu/~hpark/nmfsoftware.php) translated from MATLAB to Python by [Xingchi Li](https://lixingchi.com).
 
+MATLAB code can be found in [legacy](legacy/).
+
+TASTE combines the PARAFAC2 model with non-negative matrix factorization to model a temporal and a static tensor. It performs two import tasks in healthcare: 1- computational phenotyping 2- Predictive modeling by analyzing electronic health records (EHRs).
 
 <img src="Images/TASTE_Framework.png" width=800 alt="centered image">
 
@@ -9,6 +12,7 @@ TASTE applied on dynamically-evolving structured EHR data and static patient inf
 
 ## Relevant Publication
 TASTE implements the code in the following paper:
+
 ```
 Afshar, Ardavan, Ioakeim Perros, Haesun Park, Christopher deFilippi, Xiaowei Yan, Walter Stewart,
 Joyce Ho, and Jimeng Sun. "TASTE: Temporal and Static Tensor Factorization for Phenotyping Electronic
@@ -17,11 +21,16 @@ Health Records." ACM CHIL 2020.
 
 ### Code description
 
- Before running the codes you need to import the following packages:
- * Tensor Toolbox Version 2.6 which can be downloaded from: https://www.sandia.gov/~tgkolda/TensorToolbox/index-2.6.html
- * Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares (https://www.cc.gatech.edu/~hpark/nmfsoftware.php).
- 
- To start with you need to run: "main.m" file. 
- 
- 
- If you find any bug  in the codes or face any issue please feel free to contact me at  aafshar8@gatech.edu
+[Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares](https://www.cc.gatech.edu/~hpark/nmfsoftware.php) has been imported in the [nonnegfac](legacy/nonnegfac-matlab-master/).
+
+Before running the codes you need to import the following packages:
+* Tensor Toolbox Version 2.6 which can be downloaded from: https://www.sandia.gov/~tgkolda/TensorToolbox/index-2.6.html
+
+To start with you need to run: "main.m" file.
+`main` function takes four parameters, `R`, `static`, `dynamic` and `use`.
+* `R` denotes the number of phenotypes
+* `static` denotes the path to the static file
+* `dynamic` denotes the path to the dynamic file
+* `use` denotes whether to use saved files. Should be passed `False` for the first time run.
+
+If you find any bug  in the codes or face any issue please feel free to contact aafshar8@gatech.edu
