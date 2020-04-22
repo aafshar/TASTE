@@ -46,11 +46,12 @@ def main(R, static, dynamic, use_saved_np):
             A_case = data['A_case']
             A_ctrl = data['A_ctrl']
     else:
-        A_df = pd.read_csv(static, header = 0)
+#         A_df = pd.read_csv(static, header = 0)
+        A_df = pd.read_csv(static,  names=["patient_id","sex","race_white","race_black","race_others","race_hispanic","esrd","sp_alzhdmta","sp_chf","sp_chrnkidn","sp_cncr","sp_copd","sp_depressn","sp_ischmcht","sp_osteoprs","sp_ra_oa","sp_strketia","leq68","leq74","leq82","geq82","is_case"])
         A_case = A_df[A_df["is_case"] == 1]
         A_ctrl = A_df[A_df["is_case"] == 0]
 
-        X_df = pd.read_csv(dynamic, header = 0)
+        X_df = pd.read_csv(dynamic, names=["patient_id", "r", "code"])
 
         X_case = A_join_X(A_case, X_df)
         A_case = A_case.iloc[:, 1:-1].to_numpy() # A_case = np.ones(12494, 1)
